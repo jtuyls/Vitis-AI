@@ -14,8 +14,25 @@ The Xilinx Deep Learning Processor Unit (DPU) is a configurable computation engi
 
 ## Resources
 You could find more information on how to setup your target device below:
-* Pynq board setup - Follow instruction in [Pynq-DPU] repository to download and install the Pynq image targetting DPUCZDX8G on the supported Zynq evaluation boards. 
-* Petalinux board setup - Alternatively, you could follow the "Setting Up the Target" section of the [Vitis-AI User Guide] to install the Petalinux image on the supported Zynq boards.
+
+### Pynq board setup
+1. Download the Pynq v2.6 image for your target (use Z1 or Z2 for Ultra96 target depending on board version) Link to image: https://github.com/Xilinx/PYNQ/releases/tag/v2.6.0
+2. Follow Pynq instructions for setting up the board: [pynq setup](https://pynq.readthedocs.io/en/latest/getting_started.html)
+3. After connecting to the board, make sure to run as root. *Execute* su
+4. Set up DPU on Pynq:
+```
+git clone --branch v1.2.0 --recursive --shallow-submodules https://github.com/Xilinx/DPU-PYNQ.git
+cd DPU-PYNQ/upgrade
+make
+pip3 install pynq-dpu==1.2.0
+```
+5. Run the following command to download the DPU bitstream:
+```python
+python3 -c 'from pynq_dpu import DpuOverlay ; overlay = DpuOverlay("dpu.bit")'
+```
+
+### Petalinux board setup
+Alternatively, you could follow the "Setting Up the Target" section of the [Vitis-AI User Guide] to install the Petalinux image on the supported Zynq boards.
 
 
 ### Test DPU on Target
@@ -23,8 +40,8 @@ You could try testing your DPU setup on your evaluation board.
 
 
 ```sh
-# need sudo to access dpu drivers
-$ sudo dexplorer -w
+# need sudo to access dpu drivers so make sure you executed 'su' before 
+$ dexplorer -w
 ```
 
 If installed properly, the output should provide information on the DPU version installed on the board
