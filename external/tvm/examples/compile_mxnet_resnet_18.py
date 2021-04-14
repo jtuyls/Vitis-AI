@@ -43,7 +43,7 @@ import tvm
 from tvm import contrib
 import tvm.relay as relay
 from tvm.relay import transform
-from tvm.contrib import utils, graph_runtime
+from tvm.contrib import utils, graph_executor as graph_runtime
 from tvm.contrib.target import vitis_ai
 from tvm.relay.build_module import bind_params_by_name
 from tvm.relay.op.contrib.vitis_ai import annotation
@@ -108,7 +108,7 @@ def transform_image(image):
 input_name  = 'data'
 input_shape = (1,3,224,224)
 shape_dict  = {input_name:input_shape}
-target      = 'DPUCADX8G'
+target      = 'DPUCZDX8G-zcu102'
 tvm_target  = 'llvm'
 lib_kwargs  = {}
 
