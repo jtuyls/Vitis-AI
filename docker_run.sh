@@ -1,22 +1,24 @@
 #!/bin/bash
 # Copyright 2020 Xilinx Inc.
 
-sed -n '1, 5p' ./setup/docker/docker/PROMPT.txt
+FILE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+sed -n '1, 5p' ${FILE_DIR}/setup/docker/docker/PROMPT.txt
 read -n 1 -s -r -p "Press any key to continue..." key
 
-sed -n '5, 15p' ./setup/docker/docker/PROMPT.txt
+sed -n '5, 15p' ${FILE_DIR}/setup/docker/docker/PROMPT.txt
 read -n 1 -s -r -p "Press any key to continue..." key
 
-sed -n '15, 28p' ./setup/docker/docker/PROMPT.txt
+sed -n '15, 28p' ${FILE_DIR}/setup/docker/docker/PROMPT.txt
 read -n 1 -s -r -p "Press any key to continue..." key
 
-sed -n '28, 61p' ./setup/docker/docker/PROMPT.txt
+sed -n '28, 61p' ${FILE_DIR}/setup/docker/docker/PROMPT.txt
 read -n 1 -s -r -p "Press any key to continue..." key
 
-sed -n '62, 224p' ./setup/docker/docker/PROMPT.txt
+sed -n '62, 224p' ${FILE_DIR}/setup/docker/docker/PROMPT.txt
 read -n 1 -s -r -p "Press any key to continue..." key
 
-sed -n '224, 308p' ./setup/docker/docker/PROMPT.txt
+sed -n '224, 308p' ${FILE_DIR}/setup/docker/docker/PROMPT.txt
 read -n 1 -s -r -p "Press any key to continue..." key
 
 
