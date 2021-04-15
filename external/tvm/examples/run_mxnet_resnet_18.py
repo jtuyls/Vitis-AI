@@ -32,7 +32,7 @@ import time
 
 import pyxir
 import tvm
-from tvm.contrib import graph_runtime
+from tvm.contrib import graph_executor
 from tvm.contrib.target import vitis_ai
 
 from PIL import Image
@@ -90,7 +90,7 @@ def run(fdir,shape_dict, iterations):
 
     # load the pre-compiled module into memory
     lib = tvm.runtime.load_module(os.path.join(fdir,"tvm_dpu_cpu.so"))
-    module = graph_runtime.GraphModule(lib["default"](tvm.cpu()))
+    module = graph_executor.GraphModule(lib["default"](tvm.cpu()))
     module.set_input(**inputs)
   
 
