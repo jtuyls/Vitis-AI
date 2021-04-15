@@ -187,7 +187,7 @@ lib_dpuczdx8g.export_library('tvm_dpu_cpu.so', **lib_kwargs)
 ```
 
 
-This concludes the tutorial to compilation a model using the TVM with Vitis support. For instructions to run a compiled model please refer to the [running_on_zynq](./running_on_zynq.md) and [running_on_alveo](./running_on_alveo.md) documents
+This concludes the tutorial to compilation a model using TVM with Vitis AI. For instructions to run a compiled model please refer to the [running_on_zynq](./running_on_zynq.md) and [running_on_alveo](./running_on_alveo.md) documents
 
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job.)
