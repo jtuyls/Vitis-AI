@@ -41,6 +41,15 @@ The compilation output is saved on disk to run the model on a target device duri
 
 In this section we walk through the mxnet_resent_18.py tutorial script to further demonstrate the Compilation stage of the TVM with Vitis AI support. The script demonstrates how to import, quantize and compile models using this flow.
 
+#### Declare the target
+
+```python
+tvm_target = 'llvm'
+dpu_target = 'DPUCADX8G' # options: 'DPUCADX8G', 'DPUCZDX8G-zcu104', 'DPUCZDX8G-zcu102'
+```
+
+The TVM with Vitis AI flow currently supports 'DPUCADX8G', 'DPUCZDX8G-zcu104', 'DPUCZDX8G-zcu102'. AS mentioned previously, the "DPUCADX8G" computation engine targets cloud devices and "DPUCZDX8G-*" targets edge devices. Once the approrpiate targets are defined, we invoke the TVM compiler to build the graph for the specified target:
+
 #### Import the Model
 
 The TVM with Vitis AI support provides ease of use by mimicking the flow of that by the TVM. As such, we leverage the front end capabilities of the TVM framework for importing models. The TVM tutorial [Compiling MXNet Models] document provides an example to import MXNet models and compile them using only the TVM compiler. The TVM documentation also provides tutorials to import models from different supported framework [here].
@@ -53,44 +62,60 @@ To be able to target the Vitis-AI cloud DPUCADX8G target we first have to import
 
 ```python
 import pyxir
+# Only needed for DPUCADX8G
 import pyxir.contrib.target.DPUCADX8G
 
 import tvm
 import tvm.relay as relay
 from tvm.contrib.target import vitis_ai
-from tvm.contrib import util, graph_runtime
-from tvm.relay.build_module import bind_params_by_name
-from tvm.relay.op.contrib.vitis_ai import annotation
+from tvm.contrib import util, graph_executor
+from tvm.relay.op.contrib.vitis_ai import partition_for_vitis_ai
 ```
-Similarly, DPUCZDX8G target needs to be imported to PyXIR when targetting edge devices.
-
 
 #### Partition the Model
 
 After importing the model, we utilize the Relay API to annotate the Relay expression for the provided targer and partition the graph.
 
 ```python
-mod["main"] = bind_params_by_name(mod["main"], params)
-mod = annotation(mod, params, target)
-mod = relay.transform.MergeCompilerRegions()(mod)
-mod = relay.transform.PartitionGraph()(mod)
+# For edge DPU we recommend converting the convolutions' data layout
+#    to NHWC for best performance. Therefore, we first convert the layouts
+#    of all convolutions to NHWC before partitioning. Afterwards, we can
+#    convert any remaining convolutions (to be executed on CPU) back to NCHW.
+if target.startswith('DPUCZDX8G'):
+    desired_layouts = {'nn.conv2d': ['NHWC', 'OIHW']}
+    seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
+                                    relay.transform.ConvertLayout(desired_layouts),
+                                    relay.transform.FoldConstant()])
+    with tvm.transform.PassContext(opt_level=3):
+        mod = seq(mod)
+
+mod = partition_for_vitis_ai(mod, params, dpu=dpu_target)
+
+# For edge DPU, we recommend transforming the remaining convolutions after
+#    partitioning (that will be executed on CPU, if any) back to NCHW data layout
+#    for best CPU performance
+if target.startswith('DPUCZDX8G'):
+    desired_layouts = {'nn.conv2d': ['NCHW', 'default']}
+    seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
+                                    relay.transform.ConvertLayout(desired_layouts),
+                                    relay.transform.FoldConstant()])
+    with tvm.transform.PassContext(opt_level=3):
+        mod = seq(mod)
 ````
 
 
 #### Build the Model
 
-The partitioned model is passed to the TVM compiler. The TVM compiler generates the runtime libraries for the TVM Runtime, for the sepecifed target. For instance, when targetting Cloud devices, the TVM target and hardware accelerator target name is set as follows:
+The partitioned model is passed to the TVM compiler. The TVM compiler generates the runtime libraries for the TVM Runtime, for the sepecifed target.
 
 ```python
-tvm_target = 'llvm'
-target     = 'DPUCADX8G' # options: 'DPUCADX8G', 'DPUCZDX8G-zcu104', 'DPUCZDX8G-zcu102'
-```
-
-The TVM with Vitis AI flow currently supports 'DPUCADX8G', 'DPUCZDX8G-zcu104', 'DPUCZDX8G-zcu102'. AS mentioned previously, the "DPUCADX8G" computation engine targets cloud devices and "DPUCZDX8G-*" targets edge devices. Once the approrpiate targets are defined, we invoke the TVM compiler to build the graph for the specified target:
-
-```python
-with tvm.transform.PassContext(opt_level=3, config= {'relay.ext.vitis_ai.options.target': target}):
-   lib = relay.build(mod, tvm_target, params=params)
+export_rt_mod_file = os.path.join(os.getcwd(), 'vitis_ai.rtmod')
+build_options = {
+    'dpu': dpu_target,
+    'export_runtime_module': export_rt_mod_file
+}
+with tvm.transform.PassContext(opt_level=3, config={'relay.ext.vitis_ai.options': build_options}):   
+	   lib = relay.build(mod, tvm_target, params=params)
 ```
 
 
@@ -115,7 +140,7 @@ def inputs_func(img_files: List[str]):
     return inputs
 
 print("Create InferenceSession for OTF Quantization")
-InferenceSession = graph_runtime.GraphModule(lib["default"](tvm.cpu()))
+InferenceSession = graph_executor.GraphModule(lib["default"](tvm.cpu()))
 
 px_quant_size = int(os.environ['PX_QUANT_SIZE']) \
     if 'PX_QUANT_SIZE' in os.environ else 128
@@ -133,15 +158,37 @@ By default, the number of images used for quantization is set to 128. you could 
 | PX_QUANT_SIZE   | 128  | The number of inputs that will be used for quantization (necessary for Vitis-AI acceleration)  |
 | PX_BUILD_DIR  | Use the on-the-fly quantization flow  | Loads the quantization and compilation information from the provided build directory and immediately starts Vitis-AI hardware acceleration. This configuration can be used if the model has been executed before using on-the-fly quantization during which the quantization and comilation information was cached in a build directory.  |
 
-Lastly, we store the compiled output from the TVM compiler on disk for running the model on the target device, as follows:
+Lastly, we store the compiled output from the TVM compiler on disk for running the model on the target device. This happens as follows for cloud DPU's (for example DPUCADX8G):
 
 ```python
 lib_path = "deploy_lib.so"
 lib.export_library(lib_path)
 ```
 
+For DPUZDX8G targets we have to rebuild for aarch64. To do this we first have to normally export the module to also serialize the Vitis AI runtime module (`vitis_ai.rtmod`). We will load this runtime module again afterwards to rebuild and export for aarch64.
 
-This concludes the tutorial to compilation a model using the TVM with Vitis support. For instruction to run a compiled model please refer to the "running_on_zynq.md" and "running_on_alveo" documents
+```python
+temp = utils.tempdir()
+lib.export_library(temp.relpath("tvm_lib.so"))
+
+# Build and export lib for aarch64 target
+tvm_target = tvm.target.arm_cpu('ultra96')
+lib_kwargs = {
+   'fcompile': contrib.cc.create_shared,
+   'cc': "/usr/aarch64-linux-gnu/bin/ld"
+}
+
+build_options = {
+    'load_runtime_module': export_rt_mod_file
+}
+with tvm.transform.PassContext(opt_level=3, config={'relay.ext.vitis_ai.options': build_options}):
+     lib_dpuczdx8g = relay.build(mod, tvm_target, params=params)
+
+lib_dpuczdx8g.export_library('tvm_dpu_cpu.so', **lib_kwargs)
+```
+
+
+This concludes the tutorial to compilation a model using the TVM with Vitis support. For instruction to run a compiled model please refer to the [running_on_zynq](./running_on_zynq.md) and [running_on_alveo](./running_on_alveo.md) documents
 
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job.)
