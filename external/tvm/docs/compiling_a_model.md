@@ -81,7 +81,7 @@ After importing the model, we utilize the Relay API to annotate the Relay expres
 #    to NHWC for best performance. Therefore, we first convert the layouts
 #    of all convolutions to NHWC before partitioning. Afterwards, we can
 #    convert any remaining convolutions (to be executed on CPU) back to NCHW.
-if target.startswith('DPUCZDX8G'):
+if dpu_target.startswith('DPUCZDX8G'):
     desired_layouts = {'nn.conv2d': ['NHWC', 'OIHW']}
     seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
                                     relay.transform.ConvertLayout(desired_layouts),
@@ -94,7 +94,7 @@ mod = partition_for_vitis_ai(mod, params, dpu=dpu_target)
 # For edge DPU, we recommend transforming the remaining convolutions after
 #    partitioning (that will be executed on CPU, if any) back to NCHW data layout
 #    for best CPU performance
-if target.startswith('DPUCZDX8G'):
+if dpu_target.startswith('DPUCZDX8G'):
     desired_layouts = {'nn.conv2d': ['NCHW', 'default']}
     seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
                                     relay.transform.ConvertLayout(desired_layouts),
