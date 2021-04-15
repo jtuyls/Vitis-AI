@@ -85,10 +85,15 @@ $ python3
 $ import pyxir
 $ import tvm
 ```
-The provided docker image can be used to compile models for the cloud and for the edge targets. 
+The provided docker image can be used to compile models for the cloud and for the edge targets.
 
+## Next steps
 
 Examples and documentations of compiling and running models using Apache TVM with Vitis AI support are provided in the "examples" and "docs" directories. Once inside the docker container, you could copy the examples directory from "/workspace/examples/" into the home directory and run the examples.
+
+* [Compiling a model](./docs/compiling_a_model.md)
+* [Running on Alveo](./docs/running_on_alveo.md)
+* [Running on Zynq](./docs/running_on_zynq.md)
 
 For more details on how to compile and run models using TVM with the Vitis-AI, you could refer to [Vitis-AI Integration].
 
