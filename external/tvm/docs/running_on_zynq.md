@@ -72,7 +72,7 @@ The examples directory includes script to compile and run the model. Once you tr
 
 ```sh
 # need sudo to access dpu drivers so make sure you executed 'su' before (password: xilinx)
-$ python3 run_mxnet_resent_18.py -f "PATH_TO_COMPILED_TVM_MODEL (.so)" 
+$ python3 run_mxnet_resnet_18.py -f "PATH_TO_COMPILED_TVM_MODEL (.so)" 
 ```
 
 This script runs the model mxnet_resnet_18 model compiled using the TVM with Vitis AI flow on an image and produces the classification result.
