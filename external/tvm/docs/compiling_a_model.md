@@ -30,7 +30,7 @@ $ conda activate vitis-ai-tensorflow
 #   $ source /opt/xilinx/xrt/setup.sh
 
 # Copy example directory from /workspace/examples to the current directory
-$ cp /workspace/examples .
+$ cp -r /workspace/examples .
 $ cd examples
 $ python3 compile_mxnet_resnet_18.py
 ```
