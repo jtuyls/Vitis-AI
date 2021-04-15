@@ -26,10 +26,11 @@ Once you transfer the compile model, you could use the provided scripts to run t
 ```sh
 # Inside docker
 $ conda activate vitis-ai-tensorflow
+$ source /opt/xilinx/xrt/setup.sh
 $ python3 run_mxnet_resent_18.py -f PATH_TO_COMPILED_MODEL
 ```
 
-This script runs the model mxnet_resnet_18 model compiled using the TVM with Vitis AI flow on an image and produce the classification result.
+This script runs the model mxnet_resnet_18 model compiled using the TVM with Vitis AI flow on an image and produces the classification result.
 
 
 

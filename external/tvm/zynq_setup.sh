@@ -1,5 +1,5 @@
 #!/bin/bash
-
+  
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -25,13 +25,14 @@ export PYXIR_HOME="${TVM_VAI_HOME}"/pyxir
 
 # DOWNLOADS
 git clone --recursive --branch v0.1.6 https://github.com/Xilinx/pyxir.git "${PYXIR_HOME}"
-git clone --recursive https://github.com/apache/tvm.git "${TVM_HOME}"
+git clone --recursive https://github.com/apache/tvm.git "${TVM_HOME}" &&\
+    cd ${TVM_HOME} && git checkout cc7f529
 
 apt-get update && apt-get install libhdf5-dev
 
 # DOWNLOAD REQUIRED PYTHON PACKAGES
-pip3 install cffi cython progressbar h5py==2.8.0
- 
+pip3 install cffi cython progressbar h5py==2.10.0
+
 # BUILD PYXIR FOR EDGE
 cd "${PYXIR_HOME}"
 sudo python3 setup.py install --use_vai_rt_dpuczdx8g
@@ -48,4 +49,3 @@ DISTRIBUTION=`lsb_release -i -s`
 if ! [[ "$DISTRIBUTION" == "pynqlinux" ]]; then
     echo " WARNING: You are using the Petalinux distribution that need modification to the "${TVM_HOME}"/python/setup.py. Please refer to the \"running_on_zynq.md\" document for more instruction." 
 fi
-

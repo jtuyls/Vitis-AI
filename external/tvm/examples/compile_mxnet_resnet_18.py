@@ -46,7 +46,7 @@ from tvm.relay import transform
 from tvm.contrib import utils, graph_executor as graph_runtime
 from tvm.contrib.target import vitis_ai
 from tvm.relay.build_module import bind_params_by_name
-from tvm.relay.op.contrib.vitis_ai import annotation
+from tvm.relay.op.contrib.vitis_ai import partition_for_vitis_ai
 
 FILE_DIR   = os.path.dirname(os.path.abspath(__file__))
 HOME_DIR   = os.getenv('HOME')
@@ -108,7 +108,7 @@ def transform_image(image):
 input_name  = 'data'
 input_shape = (1,3,224,224)
 shape_dict  = {input_name:input_shape}
-target      = 'DPUCZDX8G-zcu102'
+target      = 'DPUCADX8G'
 tvm_target  = 'llvm'
 lib_kwargs  = {}
 
@@ -140,22 +140,43 @@ def inputs_func(img_files: List[str]):
 # Afterwards build graph using standard TVM flow.
 ##############################################################################
 
-
-
 mod, params = relay.frontend.from_mxnet(block, shape_dict)
-mod["main"] = bind_params_by_name(mod["main"], params)
-mod = annotation(mod, params, target)
-mod = relay.transform.MergeCompilerRegions()(mod)
-mod = relay.transform.PartitionGraph()(mod)
 
-vai_build_dir = os.path.join(os.getcwd(), target + '_build')
-vai_work_dir = os.path.join(os.getcwd(), target + '_work')
+# For edge DPU we recommend converting the convolutions' data layout
+#    to NHWC for best performance. Therefore, we first convert the layouts
+#    of all convolutions to NHWC before partitioning. Afterwards, we can
+#    convert any remaining convolutions (to be executed on CPU) back to NCHW.
+if target.startswith('dpuv2') or target.startswith('DPUCZDX8G'):
+    desired_layouts = {'nn.conv2d': ['NHWC', 'OIHW']}
+    seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
+                                    relay.transform.ConvertLayout(desired_layouts),
+                                    relay.transform.FoldConstant()])
+    with tvm.transform.PassContext(opt_level=3):
+        mod = seq(mod)
+
+mod = partition_for_vitis_ai(mod, params, dpu=target)
+
+# For edge DPU, we recommend transforming the remaining convolutions after
+#    partitioning (that will be executed on CPU, if any) back to NCHW data layout
+#    for best CPU performance
+if target.startswith('dpuv2') or target.startswith('DPUCZDX8G'):
+    desired_layouts = {'nn.conv2d': ['NCHW', 'default']}
+    seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
+                                    relay.transform.ConvertLayout(desired_layouts),
+                                    relay.transform.FoldConstant()])
+    with tvm.transform.PassContext(opt_level=3):
+        mod = seq(mod)
+
+
+# vai_build_dir = os.path.join(os.getcwd(), target + '_build')
+# vai_work_dir = os.path.join(os.getcwd(), target + '_work')
 export_rt_mod_file = os.path.join(os.getcwd(), 'vitis_ai.rtmod')
+build_options = {
+    'dpu': target,
+    'export_runtime_module': export_rt_mod_file
+}
 with tvm.transform.PassContext(opt_level=3,
-                               config={'relay.ext.vitis_ai.options.target': target,
-                                       'relay.ext.vitis_ai.options.build_dir': vai_build_dir,
-                                       'relay.ext.vitis_ai.options.work_dir': vai_work_dir,
-                                       'relay.ext.vitis_ai.options.export_runtime_module': export_rt_mod_file}):   
+                               config={'relay.ext.vitis_ai.options': build_options}):   
 	lib = relay.build(mod, tvm_target, params=params)
 
 
@@ -197,7 +218,7 @@ for i in range(px_quant_size):
     # print("running") 
     InferenceSession.run()
 
-print("Finished OTF Qunatization")
+print("Finished OTF Quantization")
 
 #########################################################
 # Export compiled model for execution #
@@ -215,12 +236,16 @@ if target.startswith('dpuv2') or target.startswith('DPUCZDX8G'):
         'cc': "/usr/aarch64-linux-gnu/bin/ld"
     }
 
-    with tvm.transform.PassContext(opt_level=3,
-                                   config={'relay.ext.vitis_ai.options.load_runtime_module': export_rt_mod_file}):
+    build_options = {
+        'load_runtime_module': export_rt_mod_file
+    }
+    with tvm.transform.PassContext(opt_level=3, config={'relay.ext.vitis_ai.options': build_options}):
         lib_dpuv2 = relay.build(mod, tvm_target, params=params)
 
     lib_dpuv2.export_library('tvm_dpu_cpu.so', **lib_kwargs)
 
 else:
     lib.export_library('tvm_dpu_cpu.so')
+
+del InferenceSession
 

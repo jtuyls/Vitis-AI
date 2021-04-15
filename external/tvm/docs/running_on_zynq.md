@@ -18,12 +18,12 @@ You could find more information on how to setup your target device below:
 ### Pynq board setup
 1. Download the Pynq v2.6 image for your target (use Z1 or Z2 for Ultra96 target depending on board version) Link to image: https://github.com/Xilinx/PYNQ/releases/tag/v2.6.0
 2. Follow Pynq instructions for setting up the board: [pynq setup](https://pynq.readthedocs.io/en/latest/getting_started.html)
-3. After connecting to the board, make sure to run as root. *Execute* su
+3. After connecting to the board, make sure to run as root. *Execute* su (password: xilinx)
 4. Set up DPU on Pynq:
 ```
 git clone --branch v1.2.0 --recursive --shallow-submodules https://github.com/Xilinx/DPU-PYNQ.git
 cd DPU-PYNQ/upgrade
-make
+make -j$(nproc)
 pip3 install pynq-dpu==1.2.0
 ```
 5. Run the following command to download the DPU bitstream:
@@ -40,7 +40,7 @@ You could try testing your DPU setup on your evaluation board.
 
 
 ```sh
-# need sudo to access dpu drivers so make sure you executed 'su' before 
+# need sudo to access dpu drivers so make sure you executed 'su' before (password: xilinx)
 $ dexplorer -w
 ```
 
@@ -71,11 +71,11 @@ The examples directory includes script to compile and run the model. Once you tr
 
 
 ```sh
-# need sudo to access dpu drivers
-$ sudo python3 run_mxnet_resent_18.py -f "PATH_TO_COMPILED_MODEL" 
+# need sudo to access dpu drivers so make sure you executed 'su' before (password: xilinx)
+$ python3 run_mxnet_resent_18.py -f "PATH_TO_COMPILED_TVM_MODEL (.so)" 
 ```
 
-This script runs the model mxnet_resnet_18 model compiled using the TVM with Vitis AI flow on an image and produce the classification result.
+This script runs the model mxnet_resnet_18 model compiled using the TVM with Vitis AI flow on an image and produces the classification result.
 
 
 

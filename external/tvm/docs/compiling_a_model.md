@@ -21,10 +21,15 @@ If you are not familiar with Apache TVM, the following materials are provided as
 
 The examples directory incorporates example python scripts for compiling models using the TVM with Vitis flow. Copy the examples directory to the docker container and run any of the compile script after setting the conda environment to the "vitis-ai-tensorflow".
 
+
+
 ```sh
 # In docker
 $ conda activate vitis-ai-tensorflow
-# copy example directory from /workspace/examples to the current directory
+# !! For DPUCADX8G source the XRT setup script: 
+#   $ source /opt/xilinx/xrt/setup.sh
+
+# Copy example directory from /workspace/examples to the current directory
 $ cp /workspace/examples .
 $ cd examples
 $ python3 compile_mxnet_resnet_18.py
