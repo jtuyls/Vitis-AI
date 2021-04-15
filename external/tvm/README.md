@@ -2,7 +2,7 @@
 
 Apache TVM is a versatile framework that integrates the high-performance computing power of Xilinx Vitis-AI DPUs with the flexibility of the TVM framework to accelerate models from many different training frameworks supported by TVM in a matter that is seamless to the end-user. 
 
-The current Vitis-AI Byoc flow inside TVM enables acceleration of Neural Network model inference on edge and cloud. The identifiers for the supported edge and cloud Deep Learning Processor Units (DPU's) are DPUCZDX8G respectively DPUCADX8G. DPUCZDX8G and DPUCADX8G are hardware accelerators for convolutional neural networks (CNN's) deployed on the Xilinx [Zyq Ultrascale+ MPSoc] [Alveo] (U200/U250) platforms, respectively.
+The current Vitis-AI Byoc flow inside TVM enables acceleration of Neural Network model inference on edge and cloud. The identifiers for the supported edge and cloud Deep Learning Processor Units (DPU's) are DPUCZDX8G respectively DPUCADX8G. DPUCZDX8G and DPUCADX8G are hardware accelerators for convolutional neural networks (CNN's) deployed on the Xilinx [Zymq Ultrascale+ MPSoc] [Alveo] (U200/U250) platforms, respectively.
 
 In this repository you will find information on how to build TVM with Vitis-AI and on how to get started with an example.
 
@@ -54,7 +54,7 @@ The TVM with Vitis AI flow currently supports the [Zyq Ultrascale+ MPSoc] device
 
 | Target Board  | TVM Identifier|
 |:-:|:-:|
-| [Ulra96]  | DPUCZDX8G-ultra96 |
+| [Ultra96]  | DPUCZDX8G-ultra96 |
 | [ZCU104]  | DPUCZDX8G-zcu104  |
 | [ZCU102]  | DPUCZDX8G-zcu102  |
 
