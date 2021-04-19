@@ -73,7 +73,7 @@ This command downloads the latest Apache TVM repository, installs the necessary 
 
 Once finished builiding the container, run the docker image using the run script.
 ```sh
-$ bash ./bash.sh tvm.ci_vai_1x
+$ ../../docker_run.sh tvm.ci_vai_1x
 # ...
 # Now inside docker...
 $ conda activate vitis-ai-tensorflow
@@ -105,7 +105,7 @@ For more details on how to compile and run models using TVM with the Vitis-AI, y
    [DPU]: https://www.xilinx.com/products/intellectual-property/dpu.html
    [Pynq-DPU]: https://github.com/Xilinx/DPU-PYNQ 
    [ZCU104]: https://www.xilinx.com/products/boards-and-kits/zcu104.html
-   [Ulra96]: https://www.xilinx.com/products/boards-and-kits/1-vad4rl.html
+   [Ultra96]: https://www.xilinx.com/products/boards-and-kits/1-vad4rl.html
    [ZCU102]: https://www.xilinx.com/products/boards-and-kits/ek-u1-zcu102-g.html
    [Alveo]: https://www.xilinx.com/products/boards-and-kits/alveo.html
    [Alveo Setup]: https://github.com/Xilinx/Vitis-AI/tree/master/alveo
