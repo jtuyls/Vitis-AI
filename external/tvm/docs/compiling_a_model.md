@@ -27,16 +27,15 @@ $ conda activate vitis-ai-tensorflow
 # !! For DPUCADX8G source the XRT setup script: 
 #   $ source /opt/xilinx/xrt/setup.sh
 
-# Copy example directory from /workspace/examples to the current directory
-$ cp -r /workspace/examples .
-$ cd examples
+# Execute examples in /workspace/examples. (Note that this assumes that the Vitis-AI/external/tvm directory has been mounted on /workspace inside the docker container, this will be the case if you executed Vitis-AI/docker_run.sh from inside Vitis-AI/external/tvm: ../../docker_run.sh tvm.ci_vai_1x)
+$ cd /workspace/examples
 # DPU_TARGET options: 'DPUCADX8G', 'DPUCZDX8G-zcu104', 'DPUCZDX8G-zcu102'
 $ python3 compile_mxnet_resnet_18.py "DPU_TARGET"
 ```
 
 The compilation output is saved on disk to run the model on a target device during the Execution stage. For edge devices, the compilation output needs to be transfered over to the target device.
 
-### Compiling MXNet Resenet_18
+### Compiling MXNet Resnet 18
 
 In this section we walk through the mxnet_resent_18.py tutorial script to further demonstrate the Compilation stage of the TVM with Vitis AI support. The script demonstrates how to import, quantize and compile models using this flow.
 
@@ -113,8 +112,8 @@ build_options = {
     'dpu': dpu_target,
     'export_runtime_module': export_rt_mod_file
 }
-with tvm.transform.PassContext(opt_level=3, config={'relay.ext.vitis_ai.options': build_options}):   
-	   lib = relay.build(mod, tvm_target, params=params)
+with tvm.transform.PassContext(opt_level=3, config={'relay.ext.vitis_ai.options': build_options}):
+    lib = relay.build(mod, tvm_target, params=params)
 ```
 
 
