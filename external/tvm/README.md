@@ -73,7 +73,7 @@ This command downloads the latest Apache TVM repository, installs the necessary 
 
 Once finished builiding the container, run the docker image using the run script.
 ```sh
-$ bash ./bash.sh tvm.ci_vai_1x
+$ ../../docker_run.sh tvm.ci_vai_1x
 # ...
 # Now inside docker...
 $ conda activate vitis-ai-tensorflow
