@@ -105,7 +105,7 @@ For more details on how to compile and run models using TVM with the Vitis-AI, y
    [DPU]: https://www.xilinx.com/products/intellectual-property/dpu.html
    [Pynq-DPU]: https://github.com/Xilinx/DPU-PYNQ 
    [ZCU104]: https://www.xilinx.com/products/boards-and-kits/zcu104.html
-   [Ulra96]: https://www.xilinx.com/products/boards-and-kits/1-vad4rl.html
+   [Ultra96]: https://www.xilinx.com/products/boards-and-kits/1-vad4rl.html
    [ZCU102]: https://www.xilinx.com/products/boards-and-kits/ek-u1-zcu102-g.html
    [Alveo]: https://www.xilinx.com/products/boards-and-kits/alveo.html
    [Alveo Setup]: https://github.com/Xilinx/Vitis-AI/tree/master/alveo
