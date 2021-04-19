@@ -89,7 +89,7 @@ RUN . $VAI_ROOT/conda/etc/profile.d/conda.sh && \
     python3 ./setup.py install 
  
  
-# CK-TOOLS INSTALL 
+# CK-TOOLS INSTALL
 ENV HOME $TVM_VAI_HOME
 RUN . $VAI_ROOT/conda/etc/profile.d/conda.sh && \
     conda activate vitis-ai-tensorflow && \

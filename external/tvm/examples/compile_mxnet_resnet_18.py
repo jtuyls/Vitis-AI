@@ -49,10 +49,8 @@ from tvm.relay.build_module import bind_params_by_name
 from tvm.relay.op.contrib.vitis_ai import partition_for_vitis_ai
 
 FILE_DIR   = os.path.dirname(os.path.abspath(__file__))
-HOME_DIR   = os.getenv('HOME')
-QUANT_DIR = os.path.join(str(Path.home()),
-                        'CK-TOOLS/dataset-imagenet-ilsvrc2012-val-min/')
-
+TVM_VAI_HOME   = os.getenv('TVM_VAI_HOME')
+QUANT_DIR = os.path.join(TVM_VAI_HOME, 'CK-TOOLS/dataset-imagenet-ilsvrc2012-val-min/')
 
 if not os.path.exists(QUANT_DIR):
     raise ValueError("Could not find directory "
@@ -60,7 +58,8 @@ if not os.path.exists(QUANT_DIR):
                      " Please install using following commands before"
                      " running this example: \n"
                      " $ python3 -m ck pull repo:ck-env\n"
-                     " $ python3 -m ck install package:imagenet-2012-val-min")
+                     " $ python3 -m ck install package:imagenet-2012-val-min\n"
+                     " $ cp -r $HOME/CK-TOOLS $TVM_VAI_HOME")
     
 
 ######################################################################
